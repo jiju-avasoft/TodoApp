@@ -39,6 +39,8 @@ local.properties
 node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json # include if you are using npm - don't use both yarn and npm
+yarn.lock
 
 # fastlane
 #

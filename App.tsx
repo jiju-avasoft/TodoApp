@@ -1,11 +1,18 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import Navigation from './Src/Routes/Navigation';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {UserProvider} from './Src/Context/UserContext';
 
 const App = () => {
   return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text style={{color: '#ffffff'}}>Login</Text>
-    </View>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <UserProvider>
+        <SafeAreaProvider>
+          <Navigation />
+        </SafeAreaProvider>
+      </UserProvider>
+    </GestureHandlerRootView>
   );
 };
 
