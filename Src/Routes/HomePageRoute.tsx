@@ -4,6 +4,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../Screens/HomeScreen';
 import AccountScreen from '../Screens/AccountScreen';
+import TodoScreen from '../Screens/TodoScreen';
 
 const HomePageRoute = () => {
   function SettingsScreen() {
@@ -25,7 +26,7 @@ const HomePageRoute = () => {
       />
       <Tab.Screen
         name="Todo"
-        component={SettingsScreen}
+        component={TodoScreen}
         options={{headerShown: false}}
       />
       <Tab.Screen

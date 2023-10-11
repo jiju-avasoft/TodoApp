@@ -7,15 +7,17 @@ interface UserContextProviderProps {
 
 interface UserContextType {
   userDetails: any;
-  updateUser: (name: string) => void;
+  updateUser: (name: any) => void;
+  updateUserImage: (image: string) => void;
 }
 
 export const UserContext = createContext<UserContextType>({
   userDetails: '',
   updateUser: () => {},
+  updateUserImage: () => {},
 });
 
-const defaultValues = {
+export const defaultUserValues = {
   email: '',
   firstName: '',
   gender: '',
@@ -27,7 +29,7 @@ const defaultValues = {
 };
 
 export const UserProvider: React.FC<UserContextProviderProps> = props => {
-  const [userDetails, setUser] = useState<any>(defaultValues);
+  const [userDetails, setUser] = useState<any>(defaultUserValues);
 
   useEffect(() => {
     const initialize = async () => {
@@ -44,8 +46,15 @@ export const UserProvider: React.FC<UserContextProviderProps> = props => {
     setUser(user);
   };
 
+  const updateUserImage = async (image: string) => {
+    const clonedUser = {...userDetails};
+    clonedUser.image = image;
+    updateUser(clonedUser);
+    await AsyncStorage.setItem('UserDetails', JSON.stringify(clonedUser));
+  };
+
   return (
-    <UserContext.Provider value={{userDetails, updateUser}}>
+    <UserContext.Provider value={{userDetails, updateUser, updateUserImage}}>
       {props.children}
     </UserContext.Provider>
   );
