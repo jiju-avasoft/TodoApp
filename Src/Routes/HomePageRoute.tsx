@@ -18,7 +18,7 @@ const HomePageRoute = () => {
   const Tab = createBottomTabNavigator();
 
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{tabBarHideOnKeyboard: true}}>
       <Tab.Screen
         name="Explore"
         component={HomeScreen}

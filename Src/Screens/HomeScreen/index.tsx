@@ -15,6 +15,7 @@ import LoginPage from '../Login';
 import {styles} from './styles';
 import {useFocusEffect} from '@react-navigation/native';
 const {width, height} = Dimensions.get('window');
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 const HomeScreen = (props: any) => {
   const [visible, setVisible] = useState<boolean>(false);
@@ -72,37 +73,41 @@ const HomeScreen = (props: any) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.mapContainer}>
-        <MapView
-          style={{width: width, height: '95%'}}
-          region={{
-            latitude: 12.8412615,
-            longitude: 80.2209664,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-          onPress={event => {
-            updateNewLocation(event.nativeEvent.coordinate);
-          }}>
-          {locations.map((location, index) => {
-            return (
-              <Marker
-                key={location.lat}
-                coordinate={{
-                  latitude: parseFloat(location.lat),
-                  longitude: parseFloat(location.lng),
-                }}>
-                <View style={styles.locationMarker}>
-                  <Text style={styles.markerNumber}>{index + 1}</Text>
-                </View>
-              </Marker>
-            );
-          })}
-        </MapView>
+    <KeyboardAwareScrollView
+      enableAutomaticScroll={true}
+      enableOnAndroid={true}>
+      <View style={styles.container}>
+        <View style={styles.mapContainer}>
+          <MapView
+            style={{width: width, height: '95%'}}
+            region={{
+              latitude: 12.8412615,
+              longitude: 80.2209664,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            onPress={event => {
+              updateNewLocation(event.nativeEvent.coordinate);
+            }}>
+            {locations.map((location, index) => {
+              return (
+                <Marker
+                  key={location.lat}
+                  coordinate={{
+                    latitude: parseFloat(location.lat),
+                    longitude: parseFloat(location.lng),
+                  }}>
+                  <View style={styles.locationMarker}>
+                    <Text style={styles.markerNumber}>{index + 1}</Text>
+                  </View>
+                </Marker>
+              );
+            })}
+          </MapView>
+        </View>
+        {visible ? <LoginPage onLogin={onLogin} /> : <></>}
       </View>
-      {visible ? <LoginPage onLogin={onLogin} /> : <></>}
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 

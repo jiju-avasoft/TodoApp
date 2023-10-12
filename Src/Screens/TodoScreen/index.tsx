@@ -1,11 +1,12 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
-import {ActivityIndicator, FlatList, Text, View} from 'react-native';
+import {ActivityIndicator, Alert, FlatList, Text, View} from 'react-native';
 import HeaderComponent from '../../Component/HeaderComponent';
 import {getTodos} from '../../Services/TodoService';
 import {UserContext} from '../../Context/UserContext';
 import TodoListCard from '../../Component/TodoListCard';
 import {TodoContext} from '../../Context/TodoContext';
-import { useFocusEffect } from '@react-navigation/native';
+import {useFocusEffect} from '@react-navigation/native';
+import PushNotification, {Importance} from 'react-native-push-notification';
 
 const TodoScreen = (props: any) => {
   const [todos, setTodos] = useState<any[]>([]);
@@ -34,6 +35,24 @@ const TodoScreen = (props: any) => {
     }, 2000);
   }, []);
 
+  useEffect(() => {
+    PushNotification.channelExists('reminder', function (exists) {
+      if (!exists) {
+        PushNotification.createChannel(
+          {
+            channelId: 'reminder',
+            channelName: 'My Default channel',
+            channelDescription: 'A channel to categorise your notifications',
+            playSound: true,
+            soundName: 'default',
+            importance: Importance.HIGH,
+          },
+          created => console.log(`createChannel returned '${created}'`),
+        );
+      }
+    });
+  }, []);
+
   const getAllTodos = async () => {
     const todoData = await getTodos(userDetails.id);
 
@@ -42,7 +61,22 @@ const TodoScreen = (props: any) => {
     }
   };
 
-  const onStatusChange = (todo: any) => {};
+  const onStatusChange = (todo: any) => {
+    console.log('is clicnked', todo);
+
+    PushNotification.cancelAllLocalNotifications();
+
+    try {
+      PushNotification.localNotification({
+        channelId: 'reminder',
+        title: 'helooo',
+        message: 'how are you',
+      });
+      console.log(' it is on  try');
+    } catch (error) {
+      Alert.alert('notification not sent');
+    }
+  };
 
   return (
     <View style={{flex: 1}}>
@@ -96,4 +130,3 @@ const TodoScreen = (props: any) => {
 };
 
 export default TodoScreen;
-
