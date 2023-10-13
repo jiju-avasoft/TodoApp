@@ -1,22 +1,64 @@
-import React from 'react';
-import {StyleSheet, Switch, Text, View} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {
+  Image,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {TodoContext} from '../Context/TodoContext';
+import {deleteTodoWithId} from '../Helpers/utils';
 
 interface TodoListProps {
   todo: any;
   onStatusChange: (todo: any) => void;
+  onPress: () => void;
+  onLongPress: () => void;
+  deleteId: boolean;
 }
 
 const TodoListCard: React.FC<TodoListProps> = props => {
   return (
-    <View style={styles.container} key={props.todo.id}>
-      <Text style={{color: '#000'}}>{props.todo.todo}</Text>
-      <Switch
-        trackColor={{false: '#767577', true: '#767577'}}
-        thumbColor={props.todo.completed ? '#000000' : '#f4f3f4'}
-        onValueChange={() => props.onStatusChange(props.todo)}
-        value={props.todo.completed}
-      />
-    </View>
+    <TouchableOpacity
+      onPress={props.onPress}
+      onLongPress={props.onLongPress}
+      style={[
+        styles.container,
+        {backgroundColor: props.deleteId ? 'red' : '#fff'},
+      ]}
+      key={props.todo.id}>
+      {props.deleteId ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Image
+            style={{width: 40, height: 40}}
+            source={require('../Assets/Images/remove.png')}
+          />
+        </View>
+      ) : (
+        <>
+          <View style={{flex: 1}}>
+            <Text style={{color: '#000', fontSize: 18}}>{props.todo.todo}</Text>
+            <Text style={{color: '#000', fontSize: 12}}>
+              {new Date(props.todo.date).toLocaleString()}
+            </Text>
+          </View>
+          <TouchableOpacity>
+            {props.todo.completed ? (
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../Assets/Images/check.png')}
+              />
+            ) : (
+              <Image
+                style={{width: 30, height: 30}}
+                source={require('../Assets/Images/in-progress.png')}
+              />
+            )}
+          </TouchableOpacity>
+        </>
+      )}
+    </TouchableOpacity>
   );
 };
 
@@ -27,6 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 20,
+    borderRadius: 15,
   },
 });
 

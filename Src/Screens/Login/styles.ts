@@ -5,7 +5,8 @@ export const styles = StyleSheet.create({
     height: '100%',
     width: '100%',
     position: 'absolute',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
+
   },
   loginContainer: {
     backgroundColor: '#fff',
@@ -27,14 +28,16 @@ export const styles = StyleSheet.create({
   },
   buttonText: {color: '#fff', fontWeight: '800', fontSize: 16},
   logoContainer: {
-    flex: 2,
+    flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoWrapper: {
     height: 80,
     width: 80,
-    backgroundColor: '#d3d3d3',
+    borderRadius: 40,
+    backgroundColor: '#0000009A',
+    elevation: 10,
   },
   inputConatiner: {
     flex: 4,

@@ -1,7 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Dimensions,
+  Image,
+  PermissionsAndroid,
+  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -14,27 +23,109 @@ import {loginUser} from '../../Services/AuthService';
 import LoginPage from '../Login';
 import {styles} from './styles';
 import {useFocusEffect} from '@react-navigation/native';
+import Geolocation from '@react-native-community/geolocation';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {isTokenValid} from '../../Helpers/utils';
 const {width, height} = Dimensions.get('window');
 
 const HomeScreen = (props: any) => {
-  const [visible, setVisible] = useState<boolean>(false);
   const {updateUser, userDetails} = useContext(UserContext);
   const {locations, updateLocations} = useContext(LocationContext);
+  const [cordinates, setCordinates] = useState<{
+    latitude: number;
+    longitude: number;
+  }>({
+    latitude: 0,
+    longitude: 0,
+  });
+
+  let watchID: any;
+  const mapRef = useRef<MapView>(null);
+  const loginSheet = useRef<RBSheet>(null);
 
   useFocusEffect(
     useCallback(() => {
-      setVisible(false);
+      loginSheet?.current?.close();
       const initialize = async () => {
         const tokenValue = await AsyncStorage.getItem('token');
         if (!tokenValue) {
           setTimeout(() => {
-            setVisible(true);
+            loginSheet?.current?.open();
           }, 2000);
+        } else {
+          if (!isTokenValid(tokenValue)) {
+            await AsyncStorage.clear();
+            loginSheet?.current?.open();
+          }
         }
       };
       initialize();
     }, [userDetails.token]),
   );
+  useFocusEffect(
+    useCallback(() => {
+      const requestLocationPermission = async () => {
+        if (Platform.OS === 'ios') {
+          // getOneTimeLocation();
+          // subscribeLocationLocation();
+        } else {
+          try {
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+              getOneTimeLocation();
+            } else {
+            }
+          } catch (err) {
+            console.warn(err);
+          }
+
+          moveToCurrentLocation();
+        }
+      };
+      requestLocationPermission();
+    }, []),
+  );
+
+  const moveToCurrentLocation = () => {
+    if (cordinates.latitude && cordinates.longitude) {
+      if (mapRef.current) {
+        mapRef?.current?.animateToRegion({
+          latitude: cordinates.latitude,
+          longitude: cordinates.longitude,
+          latitudeDelta: 0.12,
+          longitudeDelta: 0.12,
+        });
+      }
+    }
+  };
+
+  const getOneTimeLocation = () => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const clonedCords = {...cordinates};
+        clonedCords.latitude = position.coords.latitude;
+        clonedCords.longitude = position.coords.longitude;
+        setCordinates(clonedCords);
+
+        if (mapRef.current) {
+          mapRef?.current?.animateToRegion({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.12,
+            longitudeDelta: 0.12,
+          });
+        }
+      },
+      error => {},
+      {
+        enableHighAccuracy: false,
+        timeout: 30000,
+        maximumAge: 1000,
+      },
+    );
+  };
 
   const onLogin = async () => {
     const login = await loginUser();
@@ -58,7 +149,7 @@ const HomeScreen = (props: any) => {
 
       updateUser(login.data);
 
-      setVisible(false);
+      loginSheet?.current?.close();
     }
   };
 
@@ -74,14 +165,17 @@ const HomeScreen = (props: any) => {
   return (
     <View style={styles.container}>
       <View style={styles.mapContainer}>
+        <TouchableOpacity
+          onPress={moveToCurrentLocation}
+          style={styles.currentLocationNavigator}>
+          <Image
+            style={{width: 25, height: 25}}
+            source={require('../../Assets/Images/current-location-icon.png')}
+          />
+        </TouchableOpacity>
         <MapView
+          ref={mapRef}
           style={{width: width, height: '95%'}}
-          region={{
-            latitude: 12.8412615,
-            longitude: 80.2209664,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
           onPress={event => {
             updateNewLocation(event.nativeEvent.coordinate);
           }}>
@@ -99,9 +193,52 @@ const HomeScreen = (props: any) => {
               </Marker>
             );
           })}
+          {cordinates.latitude && cordinates.longitude ? (
+            <Marker
+              key={'current'}
+              coordinate={{
+                latitude: parseFloat(cordinates.latitude.toString()),
+                longitude: parseFloat(cordinates.longitude.toString()),
+              }}>
+              <View style={[styles.currentLocation, {elevation: 20}]}>
+                <View
+                  style={[
+                    {
+                      width: 20,
+                      height: 20,
+                      backgroundColor: '#3064CE',
+                      elevation: 20,
+                      borderRadius: 10,
+                    },
+                  ]}></View>
+              </View>
+            </Marker>
+          ) : (
+            <></>
+          )}
         </MapView>
       </View>
-      {visible ? <LoginPage onLogin={onLogin} /> : <></>}
+      <RBSheet
+        ref={loginSheet}
+        height={550}
+        openDuration={50}
+        closeDuration={50}
+        closeOnPressBack={false}
+        customStyles={{
+          wrapper: {
+            backgroundColor: 'transparent',
+          },
+          draggableIcon: {
+            backgroundColor: '#000',
+          },
+          container: {
+            borderTopRightRadius: 30,
+            borderTopLeftRadius: 30,
+          },
+        }}
+        animationType="slide">
+        <LoginPage onLogin={onLogin} />
+      </RBSheet>
     </View>
   );
 };

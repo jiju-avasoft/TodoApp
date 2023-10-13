@@ -1,5 +1,5 @@
 import React from 'react';
-import {Pressable, StyleSheet, Text, View} from 'react-native';
+import {Pressable, StyleSheet, Text, View, Image} from 'react-native';
 
 interface HeaderProps {
   title: string;
@@ -14,21 +14,24 @@ const HeaderComponent: React.FC<HeaderProps> = props => {
     <View style={styles.headerContainer}>
       <View style={styles.leftIcon}>
         {props.isBackRequred ? (
-          <Pressable
-            onPress={props.onPressBack}
-            style={{flex: 1, backgroundColor: '#d3d3d3'}}></Pressable>
+          <Pressable onPress={props.onPressBack} style={styles.backIconWrapper}>
+            <Image
+              style={{width: 20, height: 20}}
+              source={require('../Assets/Images/back.png')}
+            />
+          </Pressable>
         ) : (
           <></>
         )}
       </View>
-      <Text style={{color: '#000', fontSize: 18}}>{props.title}</Text>
+      <Text style={styles.title}>{props.title}</Text>
       <View
         style={{
           marginRight: 20,
         }}>
         {props.isGoRequired ? (
           <Pressable style={styles.goWrapper} onPress={props.onPressGo}>
-            <Text style={{color: '#000'}}>Add New</Text>
+            <Text style={{color: '#000'}}>Add</Text>
           </Pressable>
         ) : (
           <></>
@@ -52,13 +55,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#d3d3d3',
     height: 35,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
   },
   leftIcon: {
     width: 30,
     height: 30,
     marginLeft: 20,
   },
+  backIconWrapper: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#d3d3d3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 15,
+  },
+  title: {color: '#000', fontSize: 18, fontWeight: "700"},
 });
 
 export default HeaderComponent;
