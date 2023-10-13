@@ -11,6 +11,7 @@ import HeaderComponent from '../../Component/HeaderComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
 import LoaderComponent from '../../Component/LoaderComponent';
+import {isTokenValid} from '../../Helpers/utils';
 
 const AccountScreen = (props: any) => {
   const {userDetails, updateUserImage, updateUser} = useContext(UserContext);
@@ -18,15 +19,20 @@ const AccountScreen = (props: any) => {
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      if (!userDetails.token) {
-        setTimeout(() => {
+      const initialize = async () => {
+        setLoading(true);
+        if (!userDetails.token) {
           props.navigation.navigate('Explore');
-        }, 2000);
-      }
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
+        } else {
+          if (!isTokenValid(userDetails.token)) {
+            await AsyncStorage.clear();
+            props.navigation.navigate('Explore');
+          } else {
+            setLoading(false);
+          }
+        }
+      };
+      initialize();
     }, [userDetails.token]),
   );
 

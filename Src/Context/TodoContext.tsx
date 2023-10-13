@@ -33,13 +33,24 @@ export const TodoProvider: React.FC<TodoContextProviderProps> = props => {
     initialize();
   }, []);
 
+  useEffect(() => {
+    const updateTodos = async () => {
+      if (allTodos.length !== 0) {
+        await AsyncStorage.setItem('todos', JSON.stringify(allTodos));
+      }
+    };
+    updateTodos();
+  }, [allTodos]);
+
   const updateTodo = async (todos: any[]) => {
     setAllTodos(todos);
   };
 
   const updateTodoWithId = async (todo: any) => {};
 
-  const addTodo = async (todo: any) => {};
+  const addTodo = async (todo: any) => {
+    setAllTodos([...allTodos, todo]);
+  };
 
   return (
     <TodoContext.Provider
