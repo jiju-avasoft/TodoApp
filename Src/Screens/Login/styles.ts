@@ -48,6 +48,11 @@ export const styles = StyleSheet.create({
     width: '90%',
     borderBottomWidth: 1,
     borderBottomColor: '#d3d3d3',
+    color: '#000',
   },
   label: {color: '#000000', fontSize: 16},
+  error: {
+    fontSize: 10,
+    color: 'red',
+  },
 });
